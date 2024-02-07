@@ -4,15 +4,24 @@ import { checkValidEmail } from '../utils/Validate';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth';
 import { auth } from '../utils/firebase';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/userSlice';
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const email = useRef(null);
   const password = useRef(null);
+  const firstName = useRef(null);
 
   const [message, setMessage] = useState(null);
   const [isSignIn, setIsSignIn] = useState(true);
+
+  const dispatch = useDispatch();
 
   const handleButtonClick = () => {
     const error = checkValidEmail(email.current.value, password.current.value);
@@ -30,12 +39,38 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
-          console.log(user);
+          updateProfile(user, {
+            displayName: firstName.current.value,
+            photoURL:
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKN0shZqigIf-VDJIJHRIoQY34NHc5LgLBoVy8dMbxvq-3J2T_x__4q8SrCo8o1dYWzHs&usqp=CAU',
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              console.log(auth);
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+              // Profile updated!
+              setIsSignIn(true);
+              navigate('/browse');
+              password.current.value = '';
+            })
+            .catch((error) => {
+              // An error occurred
+              setMessage(error.message);
+              // ...
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
           setMessage(errorCode + ' ' + errorMessage);
+          navigate('/');
         });
     } else {
       signInWithEmailAndPassword(
@@ -47,12 +82,14 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
+          navigate('/Browse');
           // ...
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log(errorCode + ' ' + errorMessage);
+          setMessage(error.message);
         });
 
       //signin code
@@ -72,6 +109,7 @@ const Login = () => {
             </h1>
             {!isSignIn && (
               <input
+                ref={firstName}
                 className='p-4 my-3 w-full bg-transparent border border-white rounded-md shadow-2xl '
                 type='text'
                 placeholder='Firstname'
