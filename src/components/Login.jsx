@@ -7,13 +7,10 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth } from '../utils/firebase';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../utils/userSlice';
 
 const Login = () => {
-  const navigate = useNavigate();
-
   const email = useRef(null);
   const password = useRef(null);
   const firstName = useRef(null);
@@ -57,7 +54,6 @@ const Login = () => {
               );
               // Profile updated!
               setIsSignIn(true);
-              navigate('/browse');
               password.current.value = '';
             })
             .catch((error) => {
@@ -70,7 +66,6 @@ const Login = () => {
           const errorCode = error.code;
           const errorMessage = error.message;
           setMessage(errorCode + ' ' + errorMessage);
-          navigate('/');
         });
     } else {
       signInWithEmailAndPassword(
@@ -82,7 +77,7 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
-          navigate('/Browse');
+
           // ...
         })
         .catch((error) => {
