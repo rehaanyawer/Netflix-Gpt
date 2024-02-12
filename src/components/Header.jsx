@@ -42,10 +42,9 @@ const Header = () => {
   }, []);
 
   return (
-    <div className='fixed z-10 px-40 w-[100%] flex justify-between'>
-      <div className='w-60'>
-        <img src={LOGO} alt='Logo' />
-      </div>
+    <div className='fixed z-10 px-40 w-[100%] flex justify-between bg-gradient-to-b from-black'>
+      <img className='w-48 px-0' src={LOGO} alt='Logo' />
+
       {user && (
         <div className='flex text-white items-center p-5'>
           <img
